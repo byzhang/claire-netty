@@ -14,6 +14,8 @@
 
 namespace claire {
 
+HttpConnection::~HttpConnection() {}
+
 void HttpConnection::Shutdown()
 {
     connection_->Shutdown();

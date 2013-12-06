@@ -15,6 +15,8 @@ HttpClient::HttpClient()
     : loop_(NULL),
       client_(loop_, "Invalid") {}
 
+HttpClient::~HttpClient() {}
+
 HttpClient::HttpClient(EventLoop* loop, const std::string& name)
     : loop_(loop),
       client_(loop, name)

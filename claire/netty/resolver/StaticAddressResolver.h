@@ -15,6 +15,8 @@ class StaticAddressResolver : public Resolver,
                               boost::noncopyable
 {
 public:
+    virtual ~StaticAddressResolver() {}
+
     virtual void Resolve(const std::string& address, const Resolver::ResolveCallback& callback);
 };
 

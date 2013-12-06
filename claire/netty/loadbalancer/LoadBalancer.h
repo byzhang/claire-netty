@@ -26,6 +26,8 @@ enum class RequestResult
 class LoadBalancer
 {
 public:
+    virtual ~LoadBalancer() {}
+
     virtual void AddBackend(const InetAddress& backend, int weight) = 0;
 
     virtual void ReleaseBackend(const InetAddress& backend)

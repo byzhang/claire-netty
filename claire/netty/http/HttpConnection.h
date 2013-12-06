@@ -45,6 +45,8 @@ public:
           state_(kExpectStartLine)
     {}
 
+    ~HttpConnection();
+
     void Reset()
     {
         message_->Reset();

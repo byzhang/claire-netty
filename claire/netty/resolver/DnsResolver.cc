@@ -217,6 +217,8 @@ private:
 DnsResolver::DnsResolver()
     : impl_(new Impl()) {}
 
+DnsResolver::~DnsResolver() {}
+
 void DnsResolver::Init(EventLoop* loop)
 {
     impl_->Init(loop);

@@ -23,6 +23,7 @@ public:
     TcpServer(EventLoop* loop,
               const InetAddress& listen_address,
               const std::string& name);
+    ~TcpServer();
 
     const std::string& hostport() const;
     const std::string& name() const;

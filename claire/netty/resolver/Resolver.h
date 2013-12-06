@@ -20,6 +20,8 @@ class Resolver
 public:
     typedef boost::function<void(const std::vector<InetAddress>&)> ResolveCallback;
 
+    virtual ~Resolver() {}
+
     virtual void Init(EventLoop* loop) {}
     virtual void Resolve(const std::string& address, const ResolveCallback& callback) = 0;
 };

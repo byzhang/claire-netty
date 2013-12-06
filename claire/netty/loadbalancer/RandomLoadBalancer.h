@@ -21,6 +21,8 @@ class RandomLoadBalancer : public LoadBalancer,
                            boost::noncopyable
 {
 public:
+    virtual ~RandomLoadBalancer() {}
+
     virtual void AddBackend(const InetAddress& backend, int weight)
     {
         auto it = std::find(backends_.begin(), backends_.end(), backend);

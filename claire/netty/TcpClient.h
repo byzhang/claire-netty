@@ -23,6 +23,7 @@ class TcpClient : boost::noncopyable
 {
 public:
     TcpClient(EventLoop* loop, const std::string& name);
+    ~TcpClient();
 
     /// Start client to connect server_address
     /// It's harmless to call it multiple times.

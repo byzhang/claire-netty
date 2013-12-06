@@ -161,6 +161,8 @@ TcpClient::TcpClient(EventLoop* loop__,
                      const std::string& name__)
     : impl_(new Impl(loop__, name__)) {}
 
+TcpClient::~TcpClient() {}
+
 void TcpClient::Connect(const InetAddress& server_address)
 {
     impl_->Connect(server_address);

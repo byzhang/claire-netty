@@ -18,6 +18,7 @@ public:
 
     HttpClient();
     HttpClient(EventLoop* loop, const std::string& name);
+    ~HttpClient();
 
     void set_headers_callback(const HeadersCallback& callback)
     {

@@ -178,6 +178,8 @@ TcpServer::TcpServer(EventLoop* loop__,
                      const std::string& name__)
     : impl_(new Impl(loop__, listen_address, name__)) {}
 
+TcpServer::~TcpServer() {}
+
 void TcpServer::set_num_threads(int num_threads)
 {
     impl_->set_num_threads(num_threads);

@@ -17,6 +17,7 @@ class DnsResolver : public Resolver,
 {
 public:
     DnsResolver();
+    virtual ~DnsResolver();
 
     virtual void Init(EventLoop* loop);
     virtual void Resolve(const std::string& address, const Resolver::ResolveCallback& callback);
