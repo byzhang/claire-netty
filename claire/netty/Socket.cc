@@ -1,0 +1,243 @@
+// Copyright (c) 2013 The claire-netty Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file. See the AUTHORS file for names of contributors.
+
+#include <claire/netty/Socket.h>
+
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <strings.h>
+
+#include <claire/common/base/Types.h>
+#include <claire/common/logging/Logging.h>
+#include <claire/netty/Buffer.h>
+
+namespace claire {
+
+namespace {
+
+typedef struct sockaddr SA;
+const SA* sockaddr_cast(const struct sockaddr_in* addr)
+{
+    return static_cast<const SA*>(implicit_cast<const void*>(addr));
+}
+
+SA* sockaddr_cast(struct sockaddr_in* addr)
+{
+    return static_cast<SA*>(implicit_cast<void*>(addr));
+}
+
+int CreateNonBlockingOrDie()
+{
+    int fd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+    if (fd < 0)
+    {
+        LOG(FATAL) << "socket failed";
+    }
+
+    return fd;
+}
+
+} // namespace
+
+// static
+Socket* Socket::NewNonBlockingSocket()
+{
+    return new Socket(CreateNonBlockingOrDie());
+}
+
+Socket::~Socket()
+{
+    if (fd_ > 0)
+    {
+        if (::close(fd_) < 0)
+        {
+            PLOG(ERROR) << "close " << fd_ << " failed ";
+        }
+    }
+}
+
+void Socket::BindOrDie(const InetAddress& local_address__)
+{
+    int ret = ::bind(fd_, sockaddr_cast(&local_address__.sockaddr()), sizeof local_address__);
+    if (ret < 0)
+    {
+        PLOG(FATAL) << "bind failed ";
+    }
+}
+
+void Socket::ListenOrDie()
+{
+    int ret = ::listen(fd_, SOMAXCONN);
+    if (ret < 0)
+    {
+        PLOG(FATAL) << "listen failed";
+    }
+}
+
+int Socket::AcceptOrDie(InetAddress *peer_address__)
+{
+    auto length = static_cast<socklen_t>(sizeof *peer_address__);
+    int nfd = ::accept4(fd_,
+                        sockaddr_cast(peer_address__->mutable_sockaddr()),
+                        &length,
+                        SOCK_NONBLOCK | SOCK_CLOEXEC);
+    if (nfd < 0)
+    {
+        int saved_errno = errno;
+        PLOG(ERROR) << "accept failed ";
+
+        switch (saved_errno)
+        {
+            case EAGAIN:
+            case ECONNABORTED:
+            case EINTR:
+            case EPROTO:
+            case EPERM:
+            case EMFILE:
+                errno = saved_errno;
+                break;
+            default:
+                LOG(FATAL) << "unknown error of ::accept" << saved_errno;
+                break;
+        }
+    }
+
+    return nfd;
+}
+
+void Socket::ShutdownWrite()
+{
+    if (::shutdown(fd_, SHUT_WR) < 0)
+    {
+        PLOG(ERROR) << "shutdown failed ";
+    }
+}
+
+const InetAddress Socket::local_address() const
+{
+    struct sockaddr_in address;
+    ::bzero(&address, sizeof address);
+
+    socklen_t length = sizeof address;
+    if (::getsockname(fd_, sockaddr_cast(&address), &length) < 0)
+    {
+        PLOG(ERROR) << "getsockname failed ";
+    }
+
+    return address;
+}
+
+const InetAddress Socket::peer_address() const
+{
+    struct sockaddr_in address;
+    ::bzero(&address, sizeof address);
+
+    socklen_t length = sizeof address;
+    if (::getpeername(fd_, sockaddr_cast(&address), &length) < 0)
+    {
+        PLOG(ERROR) << "getpeername failed ";
+    }
+
+    return address;
+}
+
+int Socket::Connect(const InetAddress& server_address)
+{
+    return ::connect(fd_,
+                     sockaddr_cast(&server_address.sockaddr()),
+                     static_cast<socklen_t>(sizeof server_address));
+}
+
+ssize_t Socket::Read(void* buffer, size_t length)
+{
+    return ::read(fd_, buffer, length);
+}
+
+ssize_t Socket::Read(Buffer* buffer, InetAddress* peer_address__)
+{
+    char extra[65536];
+    size_t writable = buffer->WritableBytes();
+
+    struct iovec vec[2];
+    vec[0].iov_base = buffer->BeginWrite();
+    vec[0].iov_len = writable;
+    vec[1].iov_base = extra;
+    vec[1].iov_len = sizeof extra;
+
+    struct msghdr hdr;
+    ::bzero(&hdr, sizeof hdr);
+
+    hdr.msg_name = peer_address__->mutable_sockaddr();
+    hdr.msg_namelen = peer_address__ ? sizeof *peer_address__ : 0;
+
+    hdr.msg_iov = vec;
+    hdr.msg_iovlen = (writable < sizeof extra) ? 2 : 1;
+
+    ssize_t n = ::recvmsg(fd_, &hdr, 0);
+    if (n < 0)
+    {
+        PLOG(ERROR) << "recvmsg failed ";
+        return n;
+    }
+
+    if (implicit_cast<size_t>(n) <= writable)
+    {
+        buffer->HasWritten(static_cast<size_t>(n));
+    }
+    else
+    {
+        buffer->HasWritten(writable);
+        buffer->Append(extra, static_cast<size_t>(n) - writable);
+    }
+
+    return n;
+}
+
+size_t Socket::Write(const void* buffer, size_t length)
+{
+    return ::write(fd_, buffer, length);
+}
+
+size_t Socket::Write(Buffer* buffer)
+{
+    return ::write(fd_, buffer->Peek(), buffer->ReadableBytes());
+}
+
+int Socket::ErrorCode() const
+{
+    int option = 0;
+    auto length = static_cast<socklen_t>(sizeof option);
+
+    if (::getsockopt(fd_, SOL_SOCKET, SO_ERROR, &option, &length) < 0)
+    {
+        return errno;
+    }
+    else
+    {
+        return option;
+    }
+}
+
+void Socket::SetTcpNoDelay(bool on)
+{
+    int option = on ? 1 : 0;
+    ::setsockopt(fd_, IPPROTO_TCP, TCP_NODELAY,
+                 &option, static_cast<socklen_t>(sizeof option));
+}
+
+void Socket::SetReuseAddr(bool on)
+{
+    int option = on ? 1 : 0;
+    ::setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR,
+                 &option, static_cast<socklen_t>(sizeof option));
+}
+
+void Socket::SetKeepAlive(bool on)
+{
+    int option = on ? 1 : 0;
+    ::setsockopt(fd_, SOL_SOCKET, SO_KEEPALIVE,
+                 &option, static_cast<socklen_t>(sizeof option));
+}
+
+} // namespace claire
