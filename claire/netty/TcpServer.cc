@@ -115,7 +115,7 @@ private:
         EventLoop *io_loop = thread_pool_.NextLoop();
         TcpConnectionPtr connection(
             boost::make_shared<TcpConnection>(io_loop,
-                                              std::move<Socket>(socket),
+                                              std::move(socket),
                                               next_id_++));
         connections_[connection->id()] = connection; // thread safe
 

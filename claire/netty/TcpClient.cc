@@ -103,7 +103,7 @@ private:
         // FIXME poll with zero timeout to double confirm the new connection
         TcpConnectionPtr connection__(
             boost::make_shared<TcpConnection>(loop_,
-                                              std::move<Socket>(socket),
+                                              std::move(socket),
                                               next_id_++));
         connection__->set_connection_callback(connection_callback_);
         connection__->set_message_callback(message_callback_);

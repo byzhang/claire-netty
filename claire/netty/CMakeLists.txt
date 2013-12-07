@@ -50,7 +50,7 @@ set(netty_SRCS
     inspect/PProfInspector.cc
     inspect/FlagsInspector.cc
     inspect/StatisticsInspector.cc
-    inspect/InspectAssets.cc
+    InspectAssets.cc
     http/Uri.cc
     http/MimeType.cc
     http/HttpRequest.cc
@@ -58,7 +58,7 @@ set(netty_SRCS
     http/HttpConnection.cc
     http/HttpServer.cc
     http/HttpClient.cc
-    http/HttpAssets.cc
+    HttpAssets.cc
   )
 
 add_library(claire_netty ${netty_SRCS})
