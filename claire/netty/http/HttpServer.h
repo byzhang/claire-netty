@@ -91,6 +91,17 @@ public:
         it->second->Send(data);
     }
 
+    void Shutdown(HttpConnection::Id id)
+    {
+        MutexLock lock(mutex_);
+        auto it = connections_.find(id);
+        if (it == connections_.end())
+        {
+            return ;
+        }
+        it->second->Shutdown();
+    }
+
     void OnError(HttpConnection::Id id, HttpResponse::StatusCode status, const std::string& reason)
     {
         MutexLock lock(mutex_);

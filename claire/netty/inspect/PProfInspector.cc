@@ -94,6 +94,7 @@ void PProfInspector::OnProfileComplete()
     for (auto it = connections.cbegin(); it != connections.cend(); ++it)
     {
         server_->SendByHttpConnectionId(*it, output);
+        server_->Shutdown(*it);
     }
 }
 
@@ -119,6 +120,13 @@ void PProfInspector::OnCmdline(const HttpConnectionPtr& connection)
 {
     std::string output;
     FileUtil::ReadFileToString("/proc/self/cmdline", &output);
+    for (size_t i = 0; i < output.length(); i++)
+    {
+        if (output[i] == '\0')
+        {
+            output[i] = '\n';
+        }
+    }
 
     connection->Send(output);
     connection->Shutdown();
@@ -132,6 +140,7 @@ void PProfInspector::OnSymbol(const HttpConnectionPtr& connection)
         Buffer buffer;
         buffer.Append("num_symbols: 1\n");
         connection->Send(&buffer);
+        connection->Shutdown();
         return ;
     }
 
