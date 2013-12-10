@@ -49,7 +49,6 @@ void Connector::ConnectInLoop()
         LOG(DEBUG) << "do not connnect";
         return ;
     }
-    retry_timer_.Reset();
 
     // Connector not own the socket fd all its lifecycle
     boost::scoped_ptr<Socket> socket(Socket::NewNonBlockingSocket());
@@ -129,6 +128,12 @@ void Connector::OnWrite()
     DCHECK(!!channel_) << "channel must not be NULL";
     LOG(DEBUG) << "Connector::OnWrite fd = " << channel_->fd();
 
+    if (connect_timer_.Valid())
+    {
+        loop_->Cancel(connect_timer_);
+        connect_timer_.Reset();
+    }
+
     if (state_ == kConnecting)
     {
         Socket socket(channel_->fd());
@@ -188,18 +193,6 @@ void Connector::RemoveAndResetChannel()
 
 void Connector::ResetAndRetry()
 {
-    if (connect_timer_.Valid())
-    {
-        loop_->Cancel(connect_timer_);
-        connect_timer_.Reset();
-    }
-
-    if (retry_timer_.Valid())
-    {
-        loop_->Cancel(retry_timer_);
-        retry_timer_.Reset();
-    }
-
     RemoveAndResetChannel();
     set_state(kDisconnected);
     if (!connect_)
@@ -212,7 +205,11 @@ void Connector::ResetAndRetry()
     LOG(INFO) << "Connector::ResetAndRetry - Retry connecting to " << server_address_.ToString()
               << " in " << retry_delay << " milliseconds. ";
 
-    DCHECK(!retry_timer_.Valid());
+    if (retry_timer_.Valid())
+    {
+        loop_->Cancel(retry_timer_);
+        retry_timer_.Reset();
+    }
     retry_timer_ = loop_->RunAfter(retry_delay,
                                    boost::bind(&Connector::ConnectInLoop, this));
 }

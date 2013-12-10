@@ -5,6 +5,11 @@ install(TARGETS gen-assets DESTINATION bin)
 set(INSPECT_ASSETS
   ${CMAKE_CURRENT_SOURCE_DIR}/inspect/assets/flags.js
   ${CMAKE_CURRENT_SOURCE_DIR}/inspect/assets/flags.html
+  ${CMAKE_CURRENT_SOURCE_DIR}/inspect/assets/graphview.html
+  ${CMAKE_CURRENT_SOURCE_DIR}/inspect/assets/grapher.js
+  ${CMAKE_CURRENT_SOURCE_DIR}/inspect/assets/parser.js
+  ${CMAKE_CURRENT_SOURCE_DIR}/inspect/assets/dygraph-combined.js
+  ${CMAKE_CURRENT_SOURCE_DIR}/inspect/assets/dygraph-extra.js
 )
 
 set(HTTP_ASSETS
@@ -62,7 +67,7 @@ set(netty_SRCS
   )
 
 add_library(claire_netty ${netty_SRCS})
-target_link_libraries(claire_netty claire_common cares gflags tcmalloc profiler
+target_link_libraries(claire_netty claire_common cares gflags profiler
     boost_regex boost_system pthread)
 
 install(TARGETS claire_netty DESTINATION lib)
