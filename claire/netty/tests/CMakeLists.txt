@@ -1,5 +1,5 @@
 add_executable(dns_test resolver_test.cc)
-target_link_libraries(dns_test claire_netty)
+target_link_libraries(dns_test claire_netty cares)
 
 add_executable(HttpRequest_unittest HttpRequest_unittest.cc)
 target_link_libraries(HttpRequest_unittest claire_netty gtest gtest_main)
