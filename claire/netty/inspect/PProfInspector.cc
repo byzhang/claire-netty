@@ -25,8 +25,7 @@ static const int kDefaultProfileSeconds = 30;
 namespace claire {
 
 PProfInspector::PProfInspector(HttpServer* server)
-    : server_(server),
-      loop_(server->loop())
+    : server_(server)
 {
     server_->Register("/pprof/profile",
                       boost::bind(&PProfInspector::OnProfile, this, _1),
@@ -71,8 +70,8 @@ void PProfInspector::OnProfile(const HttpConnectionPtr& connection)
         if (connections_.empty())
         {
             ProfilerStart(kProfileFile);
-            loop_->RunAfter(seconds*1000,
-                            boost::bind(&PProfInspector::OnProfileComplete, this));
+            EventLoop::CurrentLoopInThisThread()->RunAfter(seconds*1000,
+                                                           boost::bind(&PProfInspector::OnProfileComplete, this));
         }
         connections_.insert(connection->id());
     }

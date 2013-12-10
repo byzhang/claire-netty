@@ -14,7 +14,6 @@
 
 namespace claire {
 
-class EventLoop;
 class HttpServer;
 
 class PProfInspector : boost::noncopyable
@@ -33,7 +32,6 @@ private:
     static void OnSymbol(const HttpConnectionPtr& connection);
 
     HttpServer* server_;
-    EventLoop* loop_;
 
     Mutex mutex_;
     std::set<HttpConnection::Id> connections_;

@@ -82,4 +82,4 @@ void HttpClient::OnMessage(const TcpConnectionPtr& connection, Buffer* buffer)
     }
 }
 
-}
+} // namespace claire
