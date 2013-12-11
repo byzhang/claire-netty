@@ -13,6 +13,7 @@
 #include <claire/common/events/EventLoop.h>
 #include <claire/common/events/Channel.h>
 #include <claire/common/logging/Logging.h>
+#include <claire/common/metrics/Counter.h>
 #include <claire/common/metrics/Histogram.h>
 
 DEFINE_int32(connection_watermark, 64*1024*1024, "tcp connection high watermark");
@@ -59,12 +60,19 @@ TcpConnection::TcpConnection(EventLoop *loop__,
                << " fd=" << socket_->fd();
 
     socket_->SetKeepAlive(true);
+
+    Counter("claire.TcpConnection.connected").Increment();
 }
 
 TcpConnection::~TcpConnection()
 {
     HISTOGRAM_MEMORY_KB("claire.TcpConnection.SentBytes", sent_bytes_);
     HISTOGRAM_MEMORY_KB("claire.TcpConnection.ReceivedBytes", received_bytes_);
+
+    Counter("claire.TcpConnection.SentBytes").Add(sent_bytes_);
+    Counter("claire.TcpConnection.ReceivedBytes").Add(received_bytes_);
+
+    Counter("claire.TcpConnection.disconnected").Increment();
 
     LOG(DEBUG) << "TcpConnection::TcpConnection " << peer_address_.ToString()
                << " -> " << local_address_.ToString() << " : id=" << id_
