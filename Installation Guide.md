@@ -1,6 +1,6 @@
 # Installation Guide
 
-claire-nettyis a collection of utility for build modern c++ network application. 
+claire-netty is a collection of utility for build modern c++ network application. 
 
 It is designed for used in x86-64 Linux. Beacause claire-nettyuse some new kernel api(timerfd, eventfd...), kernel version require at least more than 2.6.32.
 
@@ -23,6 +23,3 @@ Done.
   [2]: http://c-ares.haxx.se/
   [3]: https://code.google.com/p/gflags/
   [4]: https://code.google.com/p/googletest/
-  [5]: http://stackoverflow.com/questions/13513905/how-to-properly-setup-googletest-on-linux
-  [6]: https://code.google.com/p/protobuf/
-  [7]: https://code.google.com/p/rapidjson/
