@@ -101,7 +101,7 @@ function sendQuery(query, responseHandler) {
     responseHandler(data);
   };
 
-  $.getJSON('/graphdata' + query, wrappedHandler).error(
+  $.getJSON('/counterdata' + query, wrappedHandler).error(
     function(xhr) {
       addErrorText('Query failed: ' + $.parseJSON(xhr.responseText).error);
       awaitingResponse = false;

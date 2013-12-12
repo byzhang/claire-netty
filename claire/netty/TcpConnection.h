@@ -20,6 +20,7 @@
 #include <claire/netty/Callbacks.h>
 #include <claire/netty/InetAddress.h>
 #include <claire/common/strings/StringPiece.h>
+#include <claire/common/metrics/Counter.h>
 
 namespace claire {
 
@@ -135,6 +136,9 @@ private:
 
     int received_bytes_;
     int sent_bytes_;
+
+    Counter received_bytes_counter_;
+    Counter sent_bytes_counter_;
 };
 
 } // namespace claire

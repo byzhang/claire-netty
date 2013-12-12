@@ -13,7 +13,6 @@
 #include <claire/common/events/EventLoop.h>
 #include <claire/common/events/Channel.h>
 #include <claire/common/logging/Logging.h>
-#include <claire/common/metrics/Counter.h>
 #include <claire/common/metrics/Histogram.h>
 
 DEFINE_int32(connection_watermark, 64*1024*1024, "tcp connection high watermark");
@@ -44,7 +43,9 @@ TcpConnection::TcpConnection(EventLoop *loop__,
       local_address_(socket_->local_address()),
       peer_address_(socket_->peer_address()),
       received_bytes_(0),
-      sent_bytes_(0)
+      sent_bytes_(0),
+      received_bytes_counter_("claire.TcpConnection.ReceivedBytes"),
+      sent_bytes_counter_("claire.TcpConnection.SentBytes")
 {
     channel_->set_read_callback(
         boost::bind(&TcpConnection::OnRead, this));
@@ -68,10 +69,6 @@ TcpConnection::~TcpConnection()
 {
     HISTOGRAM_MEMORY_KB("claire.TcpConnection.SentBytes", sent_bytes_);
     HISTOGRAM_MEMORY_KB("claire.TcpConnection.ReceivedBytes", received_bytes_);
-
-    Counter("claire.TcpConnection.SentBytes").Add(sent_bytes_);
-    Counter("claire.TcpConnection.ReceivedBytes").Add(received_bytes_);
-
     Counter("claire.TcpConnection.disconnected").Increment();
 
     LOG(DEBUG) << "TcpConnection::TcpConnection " << peer_address_.ToString()
@@ -147,6 +144,7 @@ void TcpConnection::SendInLoop(const void* data, size_t length)
         if (nwrote >= 0)
         {
             sent_bytes_ += static_cast<int>(nwrote);
+            sent_bytes_counter_.Add(static_cast<int>(nwrote));
             remaining -= nwrote;
             if (remaining == 0 && write_complete_callback_)
             {
@@ -261,6 +259,7 @@ void TcpConnection::OnRead()
     if (n > 0)
     {
         received_bytes_ += static_cast<int>(n);
+        received_bytes_counter_.Add(static_cast<int>(n));
         if (message_callback_)
         {
             message_callback_(shared_from_this(), &input_buffer_);
@@ -290,6 +289,7 @@ void TcpConnection::OnWrite()
             if (n > 0)
             {
                 sent_bytes_ += static_cast<int>(n);
+                sent_bytes_counter_.Add(static_cast<int>(n));
                 output_buffers_[0].Consume(n);
                 if (output_buffers_[0].ReadableBytes() == 0)
                 {
