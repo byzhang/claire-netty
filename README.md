@@ -6,11 +6,7 @@ claire-netty is a network library built on claire-common library.
 Install Guide
 =============
 
-claire-netty depends on:
- - gflags
- - gperftools
- - c-ares
- - claire-common
+See [Installaton Guide][1].
 
-User need install these first. Then run build.sh .
 
+   [1]: https://github.com/robbinfan/claire-netty/blob/master/Installation%20Guide.md
