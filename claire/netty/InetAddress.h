@@ -37,6 +37,7 @@ public:
     InetAddress(const StringPiece& address);
 
     std::string ip() const;
+    int IpAsInt() const;
     uint16_t port() const;
 
     std::string ToString() const;

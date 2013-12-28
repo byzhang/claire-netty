@@ -86,6 +86,11 @@ std::string InetAddress::ip() const
     return buf;
 }
 
+int InetAddress::IpAsInt() const
+{
+    return NetworkToHost32(address_.sin_addr.s_addr);
+}
+
 uint16_t InetAddress::port() const
 {
     return NetworkToHost16(address_.sin_port);
