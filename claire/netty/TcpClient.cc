@@ -135,7 +135,7 @@ private:
         if (retry_ && connect_)
         {
             LOG(INFO) << "TcpClient::RemoveConnection[" << name_ << "] - Reconnecting to "
-                      << connection_->peer_address().ToString();
+                      << connection__->peer_address().ToString();
             connector_->Restart();
         }
     }

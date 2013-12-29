@@ -73,6 +73,12 @@ public:
         return InetAddress();
     }
 
+    bool retry() const { return client_.retry(); }
+    void set_retry(bool on)
+    {
+        client_.set_retry(on);
+    }
+
 private:
     void OnConnection(const TcpConnectionPtr& connection);
     void OnMessage(const TcpConnectionPtr& connection, Buffer* buffer);

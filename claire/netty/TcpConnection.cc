@@ -330,11 +330,9 @@ void TcpConnection::OnClose()
                << " -> " << local_address_.ToString() << " id=" << id_
                << " state = " << state_;
 
-    assert(state_ != kDisconnected);
+    DCHECK(state_ != kDisconnected);
     set_state(kDisconnected);
-
     channel_->DisableAll();
-    socket_.reset(); // force socket close the fd as soon as possible
 
     auto guard(shared_from_this());
     if (connection_callback_)
