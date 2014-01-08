@@ -12,7 +12,6 @@ namespace claire {
 ResolverFactory::ResolverFactory()
 {
     creators_.insert(std::make_pair("static", &ResolverCreator<StaticAddressResolver>));
-    creators_.insert(std::make_pair("dns", &ResolverCreator<DnsResolver>));
 }
 
 ResolverFactory::~ResolverFactory() {}
