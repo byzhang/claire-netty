@@ -20,7 +20,8 @@ public:
     {
         kOk,
         kReadPastEnd,
-        kNoEnoughSpace
+        kNoEnoughSpace,
+        kInvalidData
     };
 
     IOStream(Buffer* buffer)

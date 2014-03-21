@@ -239,14 +239,19 @@ void HttpServer::OnConnection(const TcpConnectionPtr& connection)
 
 void HttpServer::OnMessage(const TcpConnectionPtr& connection, Buffer* buffer)
 {
-
     auto it = connections_.find(connection->id());
     if (it == connections_.end())
     {
         connection->Shutdown();
         return ;
     }
+
     const auto& context = it->second;
+    if (context->GotAll())
+    {
+        context->Reset();
+    }
+
     if (!context->Parse<HttpRequest>(buffer))
     {
         LOG(INFO) << "Parse HttpRequest failed, " << connection->id();
@@ -260,7 +265,6 @@ void HttpServer::OnMessage(const TcpConnectionPtr& connection, Buffer* buffer)
         if (callbackI != request_callbacks_.end())
         {
             callbackI->second(context);
-            context->Reset();
         }
         else
         {

@@ -6,29 +6,31 @@
 
 #include <boost/bind.hpp>
 
+#include <claire/common/events/Channel.h>
 #include <claire/common/events/EventLoop.h>
 #include <claire/common/logging/Logging.h>
 #include <claire/netty/InetAddress.h>
+#include <claire/netty/Socket.h>
 
 namespace claire {
 
 Acceptor::Acceptor(EventLoop* loop, const InetAddress& listen_address)
     : loop_(loop),
-      accept_socket_(std::move(*Socket::NewNonBlockingSocket())),
-      accept_channel_(loop, accept_socket_.fd()),
+      accept_socket_(Socket::NewNonBlockingSocket(true)),
+      accept_channel_(new Channel(loop, accept_socket_->fd())),
       listenning_(false)
 {
-    accept_socket_.SetReuseAddr(true);
-    accept_socket_.BindOrDie(listen_address);
+    accept_socket_->SetReuseAddr(true);
+    accept_socket_->BindOrDie(listen_address);
 
-    accept_channel_.set_read_callback(
+    accept_channel_->set_read_callback(
         boost::bind(&Acceptor::OnRead, this));
 }
 
 Acceptor::~Acceptor()
 {
-    accept_channel_.DisableAll();
-    accept_channel_.Remove();
+    accept_channel_->DisableAll();
+    accept_channel_->Remove();
 }
 
 void Acceptor::Listen()
@@ -38,8 +40,8 @@ void Acceptor::Listen()
     if (!listenning_)
     {
         listenning_ = true;
-        accept_socket_.ListenOrDie();
-        accept_channel_.EnableReading();
+        accept_socket_->ListenOrDie();
+        accept_channel_->EnableReading();
     }
 }
 
@@ -48,7 +50,7 @@ void Acceptor::OnRead()
     loop_->AssertInLoopThread();
 
     InetAddress from;
-    Socket socket(accept_socket_.AcceptOrDie(&from));
+    Socket socket(accept_socket_->AcceptOrDie(&from));
     if (socket.fd() >= 0)
     {
         if (new_connection_callback_)

@@ -5,6 +5,7 @@
 #ifndef _CLAIRE_NETTY_SOCKET_H_
 #define _CLAIRE_NETTY_SOCKET_H_
 
+#include <memory>
 #include <algorithm>
 
 #include <boost/noncopyable.hpp>
@@ -21,7 +22,7 @@ class Buffer;
 class Socket : boost::noncopyable
 {
 public:
-    static Socket* NewNonBlockingSocket();
+    static std::unique_ptr<Socket> NewNonBlockingSocket(bool is_tcp);
 
     Socket()
         : fd_(-1)
@@ -63,6 +64,7 @@ public:
     ssize_t Read(Buffer* buffer, InetAddress* peer_address);
     size_t Write(const void* buffer, size_t length);
     size_t Write(Buffer* buffer);
+    size_t sendto(const void* buffer, size_t length, const InetAddress& server_address);
 
     /// Get local InetAddress
     const InetAddress local_address() const;

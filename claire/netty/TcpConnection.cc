@@ -18,7 +18,8 @@
 DEFINE_int32(connection_watermark, 64*1024*1024, "tcp connection high watermark");
 
 namespace claire {
-namespace detail {
+
+namespace {
 
 size_t OutputBufferSize(const boost::ptr_vector<Buffer>& v)
 {
@@ -30,7 +31,7 @@ size_t OutputBufferSize(const boost::ptr_vector<Buffer>& v)
     return n;
 }
 
-}
+} // namespace
 
 TcpConnection::TcpConnection(EventLoop *loop__,
                              Socket&& socket,
@@ -170,7 +171,7 @@ void TcpConnection::SendInLoop(const void* data, size_t length)
     {
         LOG(TRACE) << "writing more data";
 
-        size_t left = detail::OutputBufferSize(output_buffers_);
+        size_t left = OutputBufferSize(output_buffers_);
         if (left + remaining > static_cast<size_t>(FLAGS_connection_watermark)
             && left < static_cast<size_t>(FLAGS_connection_watermark)
             && high_watermark_callback_)

@@ -17,6 +17,8 @@
 #include <claire/netty/Acceptor.h>
 #include <claire/netty/TcpConnection.h>
 
+DEFINE_int32(max_input_connections, 10000, "max input connections");
+
 namespace claire {
 
 class TcpServer::Impl : boost::noncopyable,
@@ -112,6 +114,15 @@ private:
     {
         loop_->AssertInLoopThread();
 
+        if (s_total_connections_ >= FLAGS_max_input_connections)
+        {
+            LOG(WARNING) << "current connection reach max " << FLAGS_max_input_connections
+                         << ", Shutdown from " << socket.peer_address().ToString();
+            socket.ShutdownWrite();
+            return ;
+        }
+        s_total_connections_++;
+
         EventLoop *io_loop = thread_pool_.NextLoop();
         TcpConnectionPtr connection(
             boost::make_shared<TcpConnection>(io_loop,
@@ -152,6 +163,7 @@ private:
                 boost::bind(&TcpConnection::ConnectDestroyed, it->second)); // thread safe
             connections_.erase(it);
         }
+        s_total_connections_--;
     }
 
     typedef std::map<TcpConnection::Id, TcpConnectionPtr> ConnectionMap;
@@ -171,7 +183,11 @@ private:
     bool started_;
     TcpConnection::Id next_id_;
     ConnectionMap connections_;
+
+    static int32_t s_total_connections_;
 };
+
+int32_t TcpServer::Impl::s_total_connections_ = 0;
 
 TcpServer::TcpServer(EventLoop* loop__,
                      const InetAddress& listen_address,

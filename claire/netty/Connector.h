@@ -67,7 +67,7 @@ private:
     EventLoop* loop_;
     const InetAddress server_address_;
 
-    boost::scoped_ptr<Channel> channel_;
+    std::unique_ptr<Channel> channel_;
     NewConnectionCallback new_connection_callback_;
 
     boost::atomic<bool> connect_;

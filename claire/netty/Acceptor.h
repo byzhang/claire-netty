@@ -8,11 +8,10 @@
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
-#include <claire/netty/Socket.h>
-#include <claire/common/events/Channel.h>
-
 namespace claire {
 
+class Socket;
+class Channel;
 class EventLoop;
 class InetAddress;
 
@@ -36,8 +35,8 @@ private:
     void OnRead();
 
     EventLoop* loop_;
-    Socket accept_socket_;
-    Channel accept_channel_;
+    std::unique_ptr<Socket> accept_socket_;
+    std::unique_ptr<Channel> accept_channel_;
     NewConnectionCallback new_connection_callback_;
     bool listenning_;
 };

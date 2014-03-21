@@ -51,7 +51,7 @@ void Connector::ConnectInLoop()
     }
 
     // Connector not own the socket fd all its lifecycle
-    boost::scoped_ptr<Socket> socket(Socket::NewNonBlockingSocket());
+    auto socket(Socket::NewNonBlockingSocket(true));
     int ret = socket->Connect(server_address_);
     int saved_errno = (ret == 0) ? 0 : errno;
     switch (saved_errno)

@@ -48,6 +48,8 @@ set(netty_SRCS
     TcpConnection.cc
     TcpClient.cc
     TcpServer.cc
+    UdpClient.cc
+    UdpServer.cc
     resolver/ResolverFactory.cc
     resolver/StaticAddressResolver.cc
     resolver/DnsResolver.cc

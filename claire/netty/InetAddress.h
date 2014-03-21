@@ -7,6 +7,7 @@
 
 #include <netinet/in.h>
 
+#include <algorithm>
 #include <string>
 
 #include <claire/common/strings/StringPiece.h>
@@ -50,6 +51,11 @@ public:
     struct sockaddr_in* mutable_sockaddr()
     {
         return &address_;
+    }
+
+    void swap(InetAddress& other)
+    {
+        std::swap(address_, other.address_);
     }
 
 private:

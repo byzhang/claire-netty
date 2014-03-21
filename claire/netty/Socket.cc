@@ -27,9 +27,10 @@ SA* sockaddr_cast(struct sockaddr_in* addr)
     return static_cast<SA*>(implicit_cast<void*>(addr));
 }
 
+template <int Type = SOCK_STREAM, int Protocol = IPPROTO_TCP>
 int CreateNonBlockingOrDie()
 {
-    int fd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+    int fd = ::socket(AF_INET, Type | SOCK_NONBLOCK | SOCK_CLOEXEC, Protocol);
     if (fd < 0)
     {
         LOG(FATAL) << "socket failed";
@@ -41,9 +42,16 @@ int CreateNonBlockingOrDie()
 } // namespace
 
 // static
-Socket* Socket::NewNonBlockingSocket()
+std::unique_ptr<Socket> Socket::NewNonBlockingSocket(bool is_tcp)
 {
-    return new Socket(CreateNonBlockingOrDie());
+    if (is_tcp)
+    {
+        return std::unique_ptr<Socket>(new Socket(CreateNonBlockingOrDie()));
+    }
+    else
+    {
+        return std::unique_ptr<Socket>(new Socket(CreateNonBlockingOrDie<SOCK_DGRAM, IPPROTO_UDP>()));
+    }
 }
 
 Socket::~Socket()
@@ -202,6 +210,11 @@ size_t Socket::Write(const void* buffer, size_t length)
 size_t Socket::Write(Buffer* buffer)
 {
     return ::write(fd_, buffer->Peek(), buffer->ReadableBytes());
+}
+
+size_t Socket::sendto(const void * data, size_t length, const InetAddress& server_address)
+{
+    return ::sendto(fd_, data, length, 0, sockaddr_cast(&server_address.sockaddr()), sizeof(server_address.sockaddr()));
 }
 
 int Socket::ErrorCode() const

@@ -3,7 +3,6 @@
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
 #include <claire/netty/resolver/ResolverFactory.h>
-#include <claire/netty/resolver/DnsResolver.h>
 #include <claire/netty/resolver/StaticAddressResolver.h>
 #include <claire/common/logging/Logging.h>
 
