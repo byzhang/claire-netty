@@ -115,7 +115,7 @@ void UdpClient::Send(Buffer* buffer, const InetAddress& server_address)
 
             //FIXME: g++ 4.8 support emplace
             auto ret = outstanding_calls_.insert(
-                std::make_pair(hash_code, OutstandingCall(*buffer, server_address, timer_id)));
+                std::make_pair(hash_code, OutstandingCall(std::move(*buffer), server_address, timer_id)));
             DCHECK(ret.second);
         }
     }
