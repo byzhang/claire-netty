@@ -83,6 +83,7 @@ void UdpServer::OnRead()
         {
             message_callback_(&input_buffer_, peer_address);
         }
+        input_buffer_.ConsumeAll();
     }
     else
     {
