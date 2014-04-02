@@ -53,6 +53,8 @@ void HttpConnection::Send(HttpRequest* request)
     Buffer buffer;
     request->AppendTo(&buffer);
     connection_->Send(&buffer);
+
+    last_request_uri_ = request->uri();
 }
 
 void HttpConnection::Send(HttpResponse* response)

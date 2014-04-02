@@ -133,6 +133,7 @@ private:
     const TcpConnectionPtr connection_;
     boost::shared_ptr<HttpMessage> message_;
     State state_;
+    Uri last_request_uri_;
 
     HeadersCallback headers_callback_;
     BodyCallback body_callback_;

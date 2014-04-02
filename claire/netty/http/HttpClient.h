@@ -25,7 +25,7 @@ public:
         headers_callback_ = callback;
     }
 
-    void set_message_callack(const MessageCallback& callback)
+    void set_message_callback(const MessageCallback& callback)
     {
         message_callback_ = callback;
     }

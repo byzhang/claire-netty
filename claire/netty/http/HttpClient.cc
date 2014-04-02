@@ -77,8 +77,8 @@ void HttpClient::OnMessage(const TcpConnectionPtr& connection, Buffer* buffer)
         if (message_callback_)
         {
             message_callback_(connection_);
-            return ;
         }
+        connection_->Reset();
     }
 }
 
