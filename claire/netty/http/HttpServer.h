@@ -70,12 +70,7 @@ public:
     bool IsConnectionExist(HttpConnection::Id id) const
     {
         MutexLock lock(mutex_);
-        auto it = connections_.find(id);
-        if (it != connections_.end())
-        {
-            return true;
-        }
-        return false;
+        return connections_.find(id) != connections_.end();
     }
 
     template<typename T>
@@ -83,30 +78,27 @@ public:
     {
         MutexLock lock(mutex_);
         auto it = connections_.find(id);
-        if (it == connections_.end())
+        if (it != connections_.end())
         {
-            return ;
+            it->second->Send(data);
         }
-
-        it->second->Send(data);
     }
 
     void Shutdown(HttpConnection::Id id)
     {
         MutexLock lock(mutex_);
         auto it = connections_.find(id);
-        if (it == connections_.end())
+        if (it != connections_.end())
         {
-            return ;
+            it->second->Shutdown();
         }
-        it->second->Shutdown();
     }
 
     void OnError(HttpConnection::Id id, HttpResponse::StatusCode status, const std::string& reason)
     {
         MutexLock lock(mutex_);
         auto it = connections_.find(id);
-        if (it == connections_.end())
+        if (it != connections_.end())
         {
             it->second->OnError(status, reason);
         }
