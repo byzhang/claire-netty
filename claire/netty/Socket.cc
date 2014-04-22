@@ -202,17 +202,17 @@ ssize_t Socket::Read(Buffer* buffer, InetAddress* peer_address__)
     return n;
 }
 
-size_t Socket::Write(const void* buffer, size_t length)
+ssize_t Socket::Write(const void* buffer, size_t length)
 {
     return ::write(fd_, buffer, length);
 }
 
-size_t Socket::Write(Buffer* buffer)
+ssize_t Socket::Write(Buffer* buffer)
 {
     return ::write(fd_, buffer->Peek(), buffer->ReadableBytes());
 }
 
-size_t Socket::sendto(const void * data, size_t length, const InetAddress& server_address)
+ssize_t Socket::sendto(const void * data, size_t length, const InetAddress& server_address)
 {
     return ::sendto(fd_, data, length, 0, sockaddr_cast(&server_address.sockaddr()), sizeof(server_address.sockaddr()));
 }
