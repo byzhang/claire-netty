@@ -11,7 +11,7 @@ void result(const StringPiece& s, const std::vector<InetAddress>& addrs)
 {
     for (auto it = addrs.begin(); it != addrs.end(); ++it)
     {
-        LOG(INFO) << "host " << s << " : " << (*it).ip();
+        LOG(INFO) << "host " << s.data() << " : " << (*it).ip();
     }
 
     g_loop->quit();

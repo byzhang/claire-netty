@@ -81,7 +81,7 @@ bool Uri::Parse(const StringPiece& uri)
     }
     else
     {
-        LOG(ERROR) << "invalid uri: " << uri;
+        LOG(ERROR) << "invalid uri: " << uri.data();
         return false;
     }
 
@@ -112,7 +112,7 @@ bool Uri::Parse(const StringPiece& uri)
                                 authority_match,
                                 authority_regex))
         {
-            LOG(ERROR) << "invalid uri authority: " << StringPiece(authority.first, authority.second);
+            LOG(ERROR) << "invalid uri authority: " << StringPiece(authority.first, authority.second).data();
             return false;
         }
 

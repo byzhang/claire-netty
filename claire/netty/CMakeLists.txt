@@ -69,7 +69,7 @@ set(netty_SRCS
   )
 
 add_library(claire_netty ${netty_SRCS})
-target_link_libraries(claire_netty claire_common gflags boost_regex pthread rt)
+target_link_libraries(claire_netty claire_common gflags boost_regex pthread rt glog)
 
 install(TARGETS claire_netty DESTINATION lib)
 
