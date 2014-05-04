@@ -66,7 +66,7 @@ void UdpServer::Send(const void* data,
                      const InetAddress& server_address)
 {
     auto n = socket_->sendto(data, length, server_address);
-    DCHECK(n == length);
+    DCHECK(static_cast<size_t>(n) == length);
     sent_bytes_counter_.Add(static_cast<int>(n));
 }
 

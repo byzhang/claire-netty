@@ -177,7 +177,7 @@ ssize_t Socket::Read(Buffer* buffer, InetAddress* peer_address__)
     ::bzero(&hdr, sizeof hdr);
 
     hdr.msg_name = peer_address__->mutable_sockaddr();
-    hdr.msg_namelen = peer_address__ ? sizeof *peer_address__ : 0;
+    hdr.msg_namelen = peer_address__ ? static_cast<socklen_t>(sizeof *peer_address__) : 0;
 
     hdr.msg_iov = vec;
     hdr.msg_iovlen = (writable < sizeof extra) ? 2 : 1;
